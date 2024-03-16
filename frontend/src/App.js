@@ -30,24 +30,29 @@ const App = () => {
   }, [smartAccount]);
 
   return (
-    <DynamicContextProvider
-      settings={{
-        environmentId: process.env.REACT_APP_DYNAMIC_ENVIRONMENT_ID,
-        walletConnectors: [EthereumWalletConnectors],
-      }}
-    >
-      <WagmiProvider config={config}>
-        <QueryClientProvider client={queryClient}>
-          <DynamicWagmiConnector>
-            <DynamicWidget />
-            <Pimlico
-              smartAccount={smartAccount}
-              setSmartAccount={setSmartAccount}
-            />
-          </DynamicWagmiConnector>
-        </QueryClientProvider>
-      </WagmiProvider>
-    </DynamicContextProvider>
+    <div className="App">
+      <div className="flex flex-col space-y-2">
+        <DynamicContextProvider
+          settings={{
+            environmentId: process.env.REACT_APP_DYNAMIC_ENVIRONMENT_ID,
+            walletConnectors: [EthereumWalletConnectors],
+          }}
+        >
+          <WagmiProvider config={config}>
+            <QueryClientProvider client={queryClient}>
+              <DynamicWagmiConnector>
+                <DynamicWidget />
+                <Pimlico
+                  smartAccount={smartAccount}
+                  setSmartAccount={setSmartAccount}
+                />
+              </DynamicWagmiConnector>
+            </QueryClientProvider>
+          </WagmiProvider>
+        </DynamicContextProvider>
+        <button>Verify with World ID</button>
+      </div>
+    </div>
   );
 };
 
