@@ -1,14 +1,21 @@
 {
-  "name": "frontend",
+  "name": "pimlico-dynamic",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@dynamic-labs/ethereum": "^2.0.0-alpha.18",
+    "@dynamic-labs/sdk-react-core": "^2.0.0-alpha.18",
+    "@dynamic-labs/wagmi-connector": "^2.0.0-alpha.18",
+    "@tanstack/react-query": "^5.28.4",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
+    "permissionless": "*",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
+    "viem": "^2.7.6",
+    "wagmi": "^2.5.7",
     "web-vitals": "^2.1.4"
   },
   "overrides": {
