@@ -16,8 +16,16 @@ contract MediPortal is ERC721URIStorage {
     // Token symbol
     string private _symbol = "MDT";
 
-    constructor() ERC721 (_name, _symbol) {
+    IWorldID internal immutable worldId;
+
+    constructor(string memory name, 
+                string memory symbol,
+                address signal,
+                uint256 merkleRoot,
+                uint256 nullifierHash,
+                uint256[8] memory proof) {
         console.log("MediPortal contract initalized");
+        
     }
 
     struct MediPortalData {
@@ -34,7 +42,11 @@ contract MediPortal is ERC721URIStorage {
     // Events
     event NFTMinted(address sender, uint256 tokenId);
 
-    function mintMediToken(string memory cid) public {
+    function mintMediToken(string memory nullHash, string memory cid) public {
+        // Wallet address must be equal to address with previously verified nullifier hash - this provides sybil resistance.
+        require(_nullifierToAddress[nullHash] == msg.sender || _nullifierToAddress[nullHash] == 0, "Invalid World ID!");
+
+        // Token must not have been minted yet.
         require(!_tokenMinted[msg.sender], "Patient data already minted");
 
         string memory json = Base64.encode(

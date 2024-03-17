@@ -9,13 +9,14 @@ export default function MediPortal() {
 
     const [nullHash, setNullHash] = useState();
     const [proof, setProof] = useState();
-    const [verified, setVerified] = useState();
+    const [verified, setVerified] = useState(false);
     
     function onSuccess(response: any) {
         console.log(response);
         console.log("Successfully verified.");
         setNullHash(response.nullifier_hash);
         setProof(response.proof);
+        setVerified(true);
     }
 
     return (
