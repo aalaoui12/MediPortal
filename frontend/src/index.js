@@ -4,10 +4,36 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
+import {
+  DynamicContextProvider,
+  DynamicWidget,
+} from "@dynamic-labs/sdk-react-core";
+import { EthereumWalletConnectors } from "@dynamic-labs/ethereum";
+import { baseSepolia, mainnet, sepolia } from "viem/chains";
+import { http } from "viem";
+import { createConfig, WagmiProvider } from 'wagmi';
+
+const config = createConfig({
+  chains: [baseSepolia, sepolia],
+  multiInjectedProviderDiscovery: false,
+  transports: {
+    [mainnet.id]: http(),
+  },
+});
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <DynamicContextProvider
+          settings={{
+            environmentId: process.env.REACT_APP_DYNAMIC_ENVIRONMENT_ID,
+            walletConnectors: [EthereumWalletConnectors],
+          }}
+        >
+      <WagmiProvider config={config}>
+        <App/>
+      </WagmiProvider>
+    </DynamicContextProvider>
   </React.StrictMode>
 );
 
