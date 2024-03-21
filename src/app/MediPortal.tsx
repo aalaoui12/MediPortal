@@ -1,11 +1,16 @@
 'use client';
 
 import { IDKitWidget } from "@worldcoin/idkit";
-import { useAddress } from "@thirdweb-dev/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useAccount } from "wagmi";
+
+import { DynamicWidget } from "@dynamic-labs/sdk-react-core";
+import { Pimlico } from "./Pimlico";
 
 export default function MediPortal() {
-    const address = useAddress();
+    const [smartAccount, setSmartAccount] = useState(null);
+
+    const account = useAccount();
 
     const [nullHash, setNullHash] = useState();
     const [proof, setProof] = useState();
@@ -19,6 +24,10 @@ export default function MediPortal() {
         setVerified(true);
     }
 
+    useEffect(() => {
+        if (smartAccount) console.log("Smart Account: ", smartAccount);
+      }, [smartAccount]);
+
     return (
         <main className="flex min-h-screen flex-col items-center justify-between p-24">
             <div className="App flex flex-col items-center">
@@ -26,9 +35,16 @@ export default function MediPortal() {
                     MediPortal
                 </h1>
                 <div className='flex flex-col space-y-2 mt-8'>
+                    <div>
+                        <DynamicWidget />
+                        <Pimlico
+                        smartAccount={smartAccount}
+                        setSmartAccount={setSmartAccount}
+                        />
+                    </div>
                     <button className="text-white bg-black rounded py-2 px-4">Sign in with wallet</button>
                     <IDKitWidget
-                        signal={address}
+                        signal={account.address}
                         action="mint_meditoken"
                         onSuccess={onSuccess}
                         app_id="app_staging_6987c97320a0eedbcbf943ce08898fd3"
