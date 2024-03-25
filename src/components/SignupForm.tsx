@@ -34,9 +34,9 @@ export default function SignupForm() {
 
     return (
         <div className="flex flex-col items-center h-screen">
-            <h2 className="text-2xl">Enter Patient Data</h2>
-            <div className="w-full bg-color1/90 rounded-xl shadow-md py-8 px-8">
-                <form className="flex flex-col">
+            <div className="flex flex-col items-center w-full bg-color1/90 rounded-xl shadow-md pt-4 pb-2 px-8 mt-4">
+                <h2 className="text-2xl text-white">Enter Patient Data</h2>
+                <form className="pt-2 pb-4 flex flex-col">
                     <div className="flex space-x-4 mb-4">
                         <input value={firstName} className="bg-color2/70 text-white rounded-md border-0 focus:outline-none transition ease-in-out
                         duration-150 p-2 w-1/2 placeholder-gray-300" placeholder="First Name" type="text" onChange={onFirstNameChange}/>
@@ -57,7 +57,7 @@ export default function SignupForm() {
                         <input value={dob} className="bg-color2 text-white placeholder-gray-300 rounded-md border-0 focus:outline-none 
                         transition ease-in-out duration-150 p-2 w-1/2" placeholder="Date of Birth" type="text" onChange={onDOBChange}/>
                     </div>
-                    <button className="bg-[#404bbf] text-white py-2 px-4 rounded-md hover:">
+                    <button className="bg-buttonColor hover:bg-hoverButtonColor text-white py-2 px-4 rounded-md hover:">
                         Submit
                     </button>
                 </form>

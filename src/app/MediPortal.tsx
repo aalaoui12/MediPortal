@@ -27,25 +27,25 @@ export default function MediPortal() {
     }, [verified]);
 
     return (
-        <main className="flex min-h-screen flex-col">
+        <main className="flex min-h-screen flex-col bg-color2/20">
             <header className="bg-color1 flex w-screen p-4">
                 <h1 className="text-3xl text-white">
                     MediPortal
                 </h1>
                 <div className='flex flex-row ml-auto space-x-2'>
-                    <button className="text-white rounded py-2 px-4">Sign in</button>
+                    <button className="bg-buttonColor hover:bg-hoverButtonColor text-white rounded-lg py-2 px-4">Sign in</button>
                     <IDKitWidget
                         signal={account.address}
                         action="mint_meditoken"
                         onSuccess={onSuccess}
                         app_id="app_staging_6987c97320a0eedbcbf943ce08898fd3"
                     >
-                        {({ open }) => <button className="text-white rounded py-2 px-4" onClick={open}>Verify identity</button>}
+                        {({ open }) => <button className="bg-buttonColor hover:bg-hoverButtonColor text-white rounded-lg py-2 px-4" onClick={open}>Verify identity</button>}
                     </IDKitWidget>
                     {verified ? <p className="text-xs">World ID verified!</p> : ''}
                 </div>
             </header>
-            <div className="flex flex-row justify-center w-screen space-x-96 mt-16">
+            <div className="flex flex-row justify-center w-screen space-x-48 mt-16">
                 <div>
                     <SignupForm/>
                 </div>
