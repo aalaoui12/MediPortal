@@ -6,18 +6,18 @@ import { useWallets } from "@privy-io/react-auth";
 import React, { createContext, useEffect, useState } from "react";
 import { createPublicClient, createWalletClient, custom, http } from "viem";
 import { baseSepolia } from "viem/chains";
-import { signerToSafeSmartAccount } from "permissionless/_types/accounts";
+import { signerToSafeSmartAccount } from "permissionless/accounts";
 
 export const SmartAccountContext = createContext<ReturnType<typeof createSmartAccountClient> | null>(null);
 
-export const SmartAccountProvider({children}: {children: React.ReactNode}) => {
+export const SmartAccountProvider = ({children}: {children: React.ReactNode}) => {
     const {wallets} = useWallets();
     const embeddedWallet = wallets.find((wallet) => (wallet.walletClientType === 'privy'));
     
     const [smartAccountClient, setSmartAccountClient] = useState<ReturnType<typeof createSmartAccountClient> | null>(null);
 
-    const init = () => {
-        if (!embeddedWallet) return
+    const init = async () => {
+        if (!embeddedWallet) return;
 
         const eip1193provider = await embeddedWallet.getEthereumProvider();
         const privyClient = createWalletClient({
