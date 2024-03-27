@@ -9,6 +9,7 @@ import { useAccount } from "wagmi";
 import SignupForm from "../components/SignupForm";
 import Profile from "../components/Profile";
 import UserInfo from "../components/UserInfo";
+import { useSmartAccount } from "../hooks/useSmartAccount";
 
 export default function MediPortal() {
     const router = useRouter();
@@ -18,6 +19,8 @@ export default function MediPortal() {
 
     const disableLogin = !ready || (ready && authenticated);
     const disableLogout = !ready || (ready && !authenticated);
+
+    const smartAccount = useSmartAccount();
 
     const [nullHash, setNullHash] = useState();
     const [proof, setProof] = useState();
