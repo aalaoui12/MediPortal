@@ -1,18 +1,28 @@
 'use client';
 
+import { useRouter } from "next/navigation";
+import { usePrivy, useLogout } from "@privy-io/react-auth";
 import { IDKitWidget } from "@worldcoin/idkit";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 
 import SignupForm from "../components/SignupForm";
 import Profile from "../components/Profile";
+import UserInfo from "../components/UserInfo";
 
 export default function MediPortal() {
+    const router = useRouter();
     const account = useAccount();
+
+    const {ready, authenticated, login, logout, user} = usePrivy();
+
+    const disableLogin = !ready || (ready && authenticated);
+    const disableLogout = !ready || (ready && !authenticated);
 
     const [nullHash, setNullHash] = useState();
     const [proof, setProof] = useState();
     const [verified, setVerified] = useState(false);
+
     
     function onSuccess(response: any) {
         console.log(response);
@@ -26,14 +36,37 @@ export default function MediPortal() {
         console.log(verified);
     }, [verified]);
 
+    
+    useEffect(() => {
+        /*
+        if (ready && !authenticated) {
+            router.refresh();
+        }
+        */
+       console.log(ready);
+       console.log(authenticated);
+       router.refresh();
+    }, [ready, authenticated, router])
+    
+
     return (
         <main className="flex min-h-screen flex-col bg-color2/20">
             <header className="bg-color1 flex w-screen p-4">
                 <h1 className="text-3xl text-white">
                     MediPortal
                 </h1>
-                <div className='flex flex-row ml-auto space-x-2'>
-                    <button className="bg-buttonColor hover:bg-hoverButtonColor text-white rounded-lg py-2 px-4">Sign in</button>
+                <div className='flex flex-row items-center ml-auto space-x-2'>
+                    {(ready && authenticated && user) ? <UserInfo user={user}/> : ''}
+                    {(!disableLogin || !ready) ? 
+                    <button disabled={disableLogin} className="bg-buttonColor hover:bg-hoverButtonColor text-white rounded-lg py-2 px-4"
+                            onClick={login}>
+                        Sign in
+                    </button> : !disableLogout ?
+                    <button disabled={disableLogout} className="bg-buttonColor hover:bg-hoverButtonColor text-white rounded-lg py-2 px-4"
+                    onClick={logout}>
+                        Log out
+                    </button> : ''
+                    }
                     <IDKitWidget
                         signal={account.address}
                         action="mint_meditoken"
