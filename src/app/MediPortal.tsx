@@ -14,7 +14,6 @@ import 'react-toastify/dist/ReactToastify.css';
 import SignupForm from "../components/SignupForm";
 import Profile from "../components/Profile";
 import UserInfo from "../components/UserInfo";
-import { useSmartAccount } from "../hooks/useSmartAccount";
 
 export default function MediPortal() {
     const router = useRouter();
@@ -25,26 +24,18 @@ export default function MediPortal() {
     const disableLogin = !ready || (ready && authenticated);
     const disableLogout = !ready || (ready && !authenticated);
 
-    const smartAccount = useSmartAccount();
-
-    const [nullHash, setNullHash] = useState();
-    const [proof, setProof] = useState();
+    const [root, setRoot] = useState('');
+    const [nullHash, setNullHash] = useState('');
+    const [proof, setProof] = useState('');
     const [verified, setVerified] = useState(false);
-
-    const [isSubmitting, setIsSubmitting] = useState(false);
     
     function onSuccess(response: any) {
         console.log(response);
         console.log("Successfully verified.");
+        setRoot(response.merkle_root);
         setNullHash(response.nullifier_hash);
         setProof(response.proof);
         setVerified(true);
-    }
-
-    async function onSubmit() {
-        if (!smartAccount) return;
-
-        return;
     }
 
     useEffect(() => {
@@ -96,7 +87,7 @@ export default function MediPortal() {
             <ToastContainer/>
             <div className="flex flex-row justify-center w-screen space-x-48 mt-16">
                 <div>
-                    <SignupForm verified={verified} authenticated={authenticated}/>
+                    <SignupForm verified={verified} authenticated={authenticated} root={root} nullHash={nullHash} proof={proof}/>
                 </div>
                 <div>
                     <Profile/>

@@ -3,17 +3,33 @@
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 
-interface Checks {
+import { useSmartAccount } from "../context/SmartAccountProvider";
+import { postMedicalData } from "../lib/contractHelper";
+import { baseSepolia } from "viem/chains";
+import { decodeAbiParameters, encodeFunctionData, parseAbiParameters } from "viem";
+
+import ABI from '../lib/abi/MediPortal.json';
+
+interface SubmitProps {
     verified: boolean;
     authenticated: boolean;
+    root: string;
+    nullHash: string;
+    proof: string;
 }
 
-export default function SignupForm({verified, authenticated}: Checks) {
+export default function SignupForm({verified, authenticated, root, nullHash, proof}: SubmitProps) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [id, setID] = useState('');
     const [gender, setGender] = useState('');
     const [dob, setDOB] = useState('');
+
+    const { smartAccountAddress, smartAccountClient, eoa } = useSmartAccount();
+
+    const isLoading = !smartAccountAddress || !smartAccountClient;
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const unfilled = (firstName.length === 0 || lastName.length === 0 || id.length === 0 || gender.length === 0 || dob.length === 0);
 
     useEffect(() => {
         console.log(dob);
@@ -40,7 +56,7 @@ export default function SignupForm({verified, authenticated}: Checks) {
         setDOB(e.target.value);
     }
 
-    function onSubmit() {
+    async function onSubmit() {
         if (!authenticated) {
             toast("You are not signed in!", {
                 position: "top-center",
@@ -48,13 +64,61 @@ export default function SignupForm({verified, authenticated}: Checks) {
             });
         }
         else if (!verified) {
-            toast("You need to verify your identity with World ID! Use the Worldcoin simulator.", {
+            toast("You need to verify your identity with World ID! Use the Worldcoin simulator for testing purposes.", {
+                position: "top-center",
+                hideProgressBar: true
+            });
+        }
+        else if (unfilled) {
+            toast("Make sure to fill out all fields.", {
                 position: "top-center",
                 hideProgressBar: true
             });
         }
         else {
-            return;
+            setIsSubmitting(true);
+            const toastID = toast("Uploading...", {
+                position: "top-center",
+                hideProgressBar: true,
+                autoClose: false
+            });
+
+            try {
+                if (!smartAccountClient) return;
+                const txnHash = await postMedicalData(root, nullHash, proof);
+
+                toast.update(toastID, {
+                    render: "Waiting for your transaction to be confirmed.",
+                    type: "info",
+                    isLoading: true,
+                });
+
+                toast.update(toastID, {
+                    render: (
+                      <a href={`https://sepolia.basecan.org/tx/${txnHash}`}>
+                        Successfully minted! Click here to see your transaction.
+                      </a>
+                    ),
+                    type: "success",
+                    isLoading: false,
+                    autoClose: 5000,
+                  });
+
+
+            } catch (error) {
+                console.log(error);
+                toast.update(toastID, {
+                    render: (
+                      <a>
+                        There was an error sending your transaction. See the developer
+                        console for more info.
+                      </a>
+                    ),
+                    type: "error",
+                    isLoading: false,
+                    autoClose: 3000,
+                  });
+            }
         }
     }
 
@@ -84,7 +148,7 @@ export default function SignupForm({verified, authenticated}: Checks) {
                         transition ease-in-out duration-150 p-2 w-1/2" placeholder="Date of Birth" type="text" onChange={onDOBChange}/>
                     </div>
                     <button className="bg-buttonColor hover:bg-hoverButtonColor text-white py-2 px-4 rounded-md hover:"
-                            onClick={onSubmit}>
+                            disabled={isSubmitting} onClick={onSubmit}>
                         Submit
                     </button>
                 </form>
