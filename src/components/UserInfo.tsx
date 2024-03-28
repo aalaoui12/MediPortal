@@ -7,10 +7,10 @@ interface Props {
     user: PrivyInterface["user"];
 }
 
-export default function UserInfo(props: Props) {
+export default function UserInfo({user}: Props) {
     return (
         <p className="text-white">
-            {props?.user?.email ? props.user.email.address : props?.user?.google ? props.user.google.email : formatWallet(props?.user?.wallet?.address)}
+            {user?.email ? user.email.address : user?.google ? user.google.email : formatWallet(user?.wallet?.address)}
         </p>
     )
 }

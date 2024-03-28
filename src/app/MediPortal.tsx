@@ -1,10 +1,15 @@
 'use client';
 
+const Checkmark = require("react-checkmark");
+
 import { useRouter } from "next/navigation";
 import { usePrivy, useLogout } from "@privy-io/react-auth";
 import { IDKitWidget } from "@worldcoin/idkit";
 import { useEffect, useState } from "react";
+import { ToastContainer } from "react-toastify";
 import { useAccount } from "wagmi";
+
+import 'react-toastify/dist/ReactToastify.css';
 
 import SignupForm from "../components/SignupForm";
 import Profile from "../components/Profile";
@@ -26,6 +31,7 @@ export default function MediPortal() {
     const [proof, setProof] = useState();
     const [verified, setVerified] = useState(false);
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
     
     function onSuccess(response: any) {
         console.log(response);
@@ -33,6 +39,12 @@ export default function MediPortal() {
         setNullHash(response.nullifier_hash);
         setProof(response.proof);
         setVerified(true);
+    }
+
+    async function onSubmit() {
+        if (!smartAccount) return;
+
+        return;
     }
 
     useEffect(() => {
@@ -71,19 +83,20 @@ export default function MediPortal() {
                     </button> : ''
                     }
                     <IDKitWidget
-                        signal={account.address}
-                        action="mint_meditoken"
-                        onSuccess={onSuccess}
-                        app_id="app_staging_6987c97320a0eedbcbf943ce08898fd3"
-                    >
-                        {({ open }) => <button className="bg-buttonColor hover:bg-hoverButtonColor text-white rounded-lg py-2 px-4" onClick={open}>Verify identity</button>}
+                            signal={account.address}
+                            action="mint_meditoken"
+                            onSuccess={onSuccess}
+                            app_id="app_staging_6987c97320a0eedbcbf943ce08898fd3"
+                        >
+                            {({ open }) => <button className="bg-buttonColor hover:bg-hoverButtonColor text-white rounded-lg py-2 px-4" onClick={open}>{verified ? 'Reverify' : 'World ID Verify'}</button>}
                     </IDKitWidget>
-                    {verified ? <p className="text-xs">World ID verified!</p> : ''}
+                    {verified ? <Checkmark.Checkmark size="small"/> : ''}
                 </div>
             </header>
+            <ToastContainer/>
             <div className="flex flex-row justify-center w-screen space-x-48 mt-16">
                 <div>
-                    <SignupForm/>
+                    <SignupForm verified={verified} authenticated={authenticated}/>
                 </div>
                 <div>
                     <Profile/>

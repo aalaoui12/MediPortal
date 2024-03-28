@@ -1,8 +1,14 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 
-export default function SignupForm() {
+interface Checks {
+    verified: boolean;
+    authenticated: boolean;
+}
+
+export default function SignupForm({verified, authenticated}: Checks) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [id, setID] = useState('');
@@ -34,6 +40,24 @@ export default function SignupForm() {
         setDOB(e.target.value);
     }
 
+    function onSubmit() {
+        if (!authenticated) {
+            toast("You are not signed in!", {
+                position: "top-center",
+                hideProgressBar: true
+            });
+        }
+        else if (!verified) {
+            toast("You need to verify your identity with World ID! Use the Worldcoin simulator.", {
+                position: "top-center",
+                hideProgressBar: true
+            });
+        }
+        else {
+            return;
+        }
+    }
+
     return (
         <div className="flex flex-col items-center h-screen">
             <div className="flex flex-col items-center w-full bg-color1/90 rounded-xl shadow-md pt-4 pb-2 px-8 mt-4">
@@ -59,7 +83,8 @@ export default function SignupForm() {
                         <input value={dob} className="bg-color2 text-white placeholder-gray-300 rounded-md border-0 focus:outline-none 
                         transition ease-in-out duration-150 p-2 w-1/2" placeholder="Date of Birth" type="text" onChange={onDOBChange}/>
                     </div>
-                    <button className="bg-buttonColor hover:bg-hoverButtonColor text-white py-2 px-4 rounded-md hover:">
+                    <button className="bg-buttonColor hover:bg-hoverButtonColor text-white py-2 px-4 rounded-md hover:"
+                            onClick={onSubmit}>
                         Submit
                     </button>
                 </form>
