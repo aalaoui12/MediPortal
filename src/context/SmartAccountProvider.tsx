@@ -2,7 +2,7 @@
 
 import { ENTRYPOINT_ADDRESS_V07, createSmartAccountClient, walletClientToSmartAccountSigner, type SmartAccountClient } from "permissionless";
 import { createPimlicoBundlerClient, createPimlicoPaymasterClient } from "permissionless/clients/pimlico";
-import { ConnectedWallet, useWallets } from "@privy-io/react-auth";
+import { ConnectedWallet, usePrivy, useWallets } from "@privy-io/react-auth";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { createPublicClient, createWalletClient, custom, http } from "viem";
 import { baseSepolia } from "viem/chains";
@@ -31,7 +31,7 @@ export const useSmartAccount = () => {
 
 export const SmartAccountProvider = ({children}: {children: React.ReactNode}) => {
     const {wallets} = useWallets();
-    const embeddedWallet = wallets.find((wallet) => (wallet.walletClientType === 'privy'));
+    const embeddedWallet = wallets[0]; // Either Privy or user's own EOA
     
     // const [smartAccountClient, setSmartAccountClient] = useState<ReturnType<typeof createSmartAccountClient> | null>(null);
     const [eoa, setEoa] = useState<ConnectedWallet | undefined>();
@@ -40,7 +40,11 @@ export const SmartAccountProvider = ({children}: {children: React.ReactNode}) =>
     const [smartAccountReady, setSmartAccountReady] = useState(false);
 
     const init = async () => {
-        if (!embeddedWallet) return;
+        console.log(wallets);
+        if (!embeddedWallet) {
+            console.log("embedded wallet does not exist!");
+            return;
+        }
 
         const eip1193provider = await embeddedWallet.getEthereumProvider();
         const privyClient = createWalletClient({
@@ -82,10 +86,10 @@ export const SmartAccountProvider = ({children}: {children: React.ReactNode}) =>
             },
         });
         // setSmartAccountClient(safeAccountClient as ReturnType<typeof createSmartAccountClient>);
-        const smartAccountAddress = safeAccountClient.account?.address;
+        const safeAccountAddress = safeAccountClient.account?.address;
 
-        setSmartAccountClient(smartAccountClient);
-        setSmartAccountAddress(smartAccountAddress);
+        setSmartAccountClient(safeAccountClient);
+        setSmartAccountAddress(safeAccountAddress);
         setSmartAccountReady(true);
     }
 
