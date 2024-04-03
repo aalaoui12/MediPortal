@@ -137,7 +137,7 @@ export default function SignupForm({verified, authenticated, root, nullHash, pro
 
                 console.log("Recovered public key, now uploading text data...");
                 const response = await lighthouse.textUploadEncrypted(medicalJSON, 
-                                                                      process.env.NEXT_PUBLIC_LIGHTHOUSE_API_KEY!,
+                                                                      process.env.LIGHTHOUSE_API_KEY!,
                                                                       privyClient?.account?.address!,
                                                                       JWT);
                 
@@ -184,6 +184,7 @@ export default function SignupForm({verified, authenticated, root, nullHash, pro
                   });
 
                 submitInfo(firstName.concat(" ", lastName), id, gender, dob);
+                setIsSubmitting(false);
 
             } catch (error) {
                 console.log(error);
@@ -197,6 +198,7 @@ export default function SignupForm({verified, authenticated, root, nullHash, pro
                     isLoading: false,
                     autoClose: 3000,
                   });
+                setIsSubmitting(false);
             }
         }
     }

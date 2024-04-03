@@ -102,7 +102,7 @@ export const SmartAccountProvider = ({children}: {children: React.ReactNode}) =>
             account: safeAccount,
             entryPoint: ENTRYPOINT_ADDRESS_V06,
             chain: baseSepolia,
-            bundlerTransport: http(process.env.NEXT_PUBLIC_PIMLICO_BUNDLER),
+            bundlerTransport: http(process.env.PIMLICO_BUNDLER),
             middleware: {
                 gasPrice: async () => (await pimlicoBundler.getUserOperationGasPrice()).fast, // use pimlico bundler to get gas prices, if using pimlico
                 sponsorUserOperation: pimlicoPaymaster.sponsorUserOperation, // optional

@@ -1,11 +1,10 @@
 'use client';
 
-const Checkmark = require("react-checkmark");
-
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { IDKitWidget } from "@worldcoin/idkit";
-import { useEffect, useState } from "react";
+import { useEffect, useState, lazy } from "react";
 import { ToastContainer } from "react-toastify";
 import { useAccount } from "wagmi";
 
@@ -33,6 +32,13 @@ export default function MediPortal() {
     const [id, setID] = useState('');
     const [gender, setGender] = useState('');
     const [dob, setDOB] = useState('');
+
+    type CheckmarkProps = {
+        size: string;
+    }
+
+    // Lazy load checkmark
+    const Checkmark = dynamic<CheckmarkProps>(() => import('react-checkmark').then((mod) => mod.Checkmark));
 
     function onSubmitForm(name: string, id: string, gender: string, dob: string) {
         setName(name);
@@ -93,7 +99,7 @@ export default function MediPortal() {
                         >
                             {({ open }) => <button className="bg-buttonColor hover:bg-hoverButtonColor text-white rounded-lg py-2 px-4" onClick={open}>{verified ? 'Reverify' : 'World ID Verify'}</button>}
                     </IDKitWidget>
-                    {verified ? <Checkmark.Checkmark size="small"/> : ''}
+                    {verified ? <Checkmark size="small"/> : ''}
                 </div>
             </header>
             <ToastContainer/>
