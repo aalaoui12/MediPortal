@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 import PatientInformation from "./PatientInfo";
 
-export default function Profile() {
+export interface PatientProps {
+    name: string;
+    id: string;
+    gender: string;
+    dob: string;
+}
+
+export default function Profile({name, id, gender, dob}: PatientProps) {
     const [activeTab, setActiveTab] = useState(0);
 
     const tabTitles = ['Personal Information', 'Prior Visits', 'Diagnoses'];
@@ -22,7 +29,7 @@ export default function Profile() {
                     ))}
                 </ul>
                 <div className="self-start pt-4 pb-10">
-                    {activeTab === 0 ? <PatientInformation/> : <p className="text-white">No information to show here.</p>}
+                    {activeTab === 0 ? <PatientInformation name={name} id={id} gender={gender} dob={dob}/> : <p className="text-white">No information to show here.</p>}
                 </div>
             </div>
         </div>

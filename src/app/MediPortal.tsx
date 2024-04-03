@@ -28,6 +28,18 @@ export default function MediPortal() {
     const [nullHash, setNullHash] = useState('');
     const [proof, setProof] = useState('');
     const [verified, setVerified] = useState(false);
+
+    const [name, setName] = useState('');
+    const [id, setID] = useState('');
+    const [gender, setGender] = useState('');
+    const [dob, setDOB] = useState('');
+
+    function onSubmitForm(name: string, id: string, gender: string, dob: string) {
+        setName(name);
+        setID(id);
+        setGender(gender);
+        setDOB(dob);
+    }
     
     function onSuccess(response: any) {
         console.log(response);
@@ -87,10 +99,10 @@ export default function MediPortal() {
             <ToastContainer/>
             <div className="flex flex-row justify-center w-screen space-x-48 mt-16">
                 <div>
-                    <SignupForm verified={verified} authenticated={authenticated} root={root} nullHash={nullHash} proof={proof}/>
+                    <SignupForm verified={verified} authenticated={authenticated} root={root} nullHash={nullHash} proof={proof} submitInfo={onSubmitForm}/>
                 </div>
                 <div>
-                    <Profile/>
+                    <Profile name={name} id={id} gender={gender} dob={dob}/>
                 </div>
             </div>
         </main>

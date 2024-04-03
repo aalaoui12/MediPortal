@@ -17,9 +17,11 @@ interface SubmitProps {
     root: string;
     nullHash: string;
     proof: string;
+
+    submitInfo: (name: string, id: string, gender: string, dob: string) => void;
 }
 
-export default function SignupForm({verified, authenticated, root, nullHash, proof}: SubmitProps) {
+export default function SignupForm({verified, authenticated, root, nullHash, proof, submitInfo}: SubmitProps) {
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [id, setID] = useState('');
@@ -145,7 +147,7 @@ export default function SignupForm({verified, authenticated, root, nullHash, pro
 
                 toast.update(toastID, {
                     render: (
-                        <a href={`https://gateway.lighthouse.storage/ipfs/${response.data.hash}`}>
+                        <a href={`https://gateway.lighthouse.storage/ipfs/${response.data.Hash}`}>
                             Uploaded at this link - Now minting patient NFT...
                         </a>
                     ),
@@ -181,7 +183,7 @@ export default function SignupForm({verified, authenticated, root, nullHash, pro
                     isLoading: false,
                   });
 
-                
+                submitInfo(firstName.concat(" ", lastName), id, gender, dob);
 
             } catch (error) {
                 console.log(error);
