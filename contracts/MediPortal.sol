@@ -62,8 +62,16 @@ contract MediPortal is ERC721URIStorage {
         externalNullifier = abi.encodePacked(abi.encodePacked(_appId).hashToField(), _actionId).hashToField();
     }
 
+    function nullifierHashExists(uint256 nullifierHash) public view returns (bool) {
+        if (_nullifierToAddress[nullifierHash] == address(0)) {
+            return false;
+        } else{
+            return true;
+        }
+    }
+
     function verifyAndExecute(address signal, uint256 root, uint256 nullifierHash, uint256[8] calldata proof, string memory cid) public {
-		if (_nullifierToAddress[nullifierHash] != address(0) && _nullifierToAddress[nullifierHash] != signal) revert DuplicateNullifier(nullifierHash);
+		// if (_nullifierToAddress[nullifierHash] != address(0) && _nullifierToAddress[nullifierHash] != signal) revert DuplicateNullifier(nullifierHash);
 
 		// Verify World ID proof
 		worldId.verifyProof(
@@ -76,9 +84,9 @@ contract MediPortal is ERC721URIStorage {
 		);
 
 		// Map nullifier hash to user address for sybil-resistance
-		 _nullifierToAddress[nullifierHash] = signal;
+		_nullifierToAddress[nullifierHash] = signal;
 
-         emit Verified(nullifierHash);
+        emit Verified(nullifierHash);
 
 		// Mint NFT
         mintMediToken(nullifierHash, cid);

@@ -3,7 +3,7 @@
 const Checkmark = require("react-checkmark");
 
 import { useRouter } from "next/navigation";
-import { usePrivy, useLogout } from "@privy-io/react-auth";
+import { usePrivy, useWallets } from "@privy-io/react-auth";
 import { IDKitWidget } from "@worldcoin/idkit";
 import { useEffect, useState } from "react";
 import { ToastContainer } from "react-toastify";

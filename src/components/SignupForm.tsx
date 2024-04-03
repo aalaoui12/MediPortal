@@ -2,13 +2,14 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
-
-import { useSmartAccount } from "../context/SmartAccountProvider";
-import { postMedicalData } from "../lib/contractHelper";
-import { baseSepolia } from "viem/chains";
-import { decodeAbiParameters, encodeFunctionData, parseAbiParameters } from "viem";
+import lighthouse from "@lighthouse-web3/sdk";
+import kavach from "@lighthouse-web3/kavach";
 
 import ABI from '../lib/abi/MediPortal.json';
+import { useSmartAccount } from "../context/SmartAccountProvider";
+import { postMedicalData } from "../lib/contractHelper";
+import { createPublicClient, decodeAbiParameters, encodeFunctionData, getContract, hashMessage, http, parseAbiParameters, recoverPublicKey, toBytes, zeroAddress } from "viem";
+import { baseSepolia } from "viem/chains";
 
 interface SubmitProps {
     verified: boolean;
@@ -25,15 +26,11 @@ export default function SignupForm({verified, authenticated, root, nullHash, pro
     const [gender, setGender] = useState('');
     const [dob, setDOB] = useState('');
 
-    const { smartAccountAddress, smartAccountClient, eoa } = useSmartAccount();
+    const { privyClient, smartAccountSigner, smartAccountAddress, smartAccountClient, eoa } = useSmartAccount();
 
     const isLoading = !smartAccountAddress || !smartAccountClient;
     const [isSubmitting, setIsSubmitting] = useState(false);
     const unfilled = (firstName.length === 0 || lastName.length === 0 || id.length === 0 || gender.length === 0 || dob.length === 0);
-
-    useEffect(() => {
-        console.log(dob);
-    }, [dob])
 
     function onFirstNameChange(e: any) {
         setFirstName(e.target.value);
@@ -52,7 +49,7 @@ export default function SignupForm({verified, authenticated, root, nullHash, pro
     }
 
     function onDOBChange(e: any) {
-        console.log(e.target.value);
+        // console.log(e.target.value);
         setDOB(e.target.value);
     }
 
@@ -84,8 +81,89 @@ export default function SignupForm({verified, authenticated, root, nullHash, pro
             });
 
             try {
-                if (!smartAccountClient) return;
-                const txnHash = await postMedicalData(root, nullHash, proof);
+                if (!smartAccountClient) {
+                    console.log(smartAccountClient);
+                    console.log("Smart account client not initialized.");
+                    toast.update(toastID, {
+                        render: "If you're using a browser wallet, make sure you are logged in and try again.",
+                        type: "info",
+                        isLoading: true,
+                    });
+                    return;
+                }
+
+                const medicalData = {
+                    firstName: firstName,
+                    lastName: lastName,
+                    id: id,
+                    gender: gender,
+                    dob: dob,
+                }
+    
+                const medicalJSON = JSON.stringify(medicalData);
+                console.log("Privy embedded wallet address: ", privyClient?.account?.address);
+                console.log("Address to check: ", smartAccountAddress);
+                console.log("And smartAccountClient.account: ", smartAccountClient.account);
+
+
+                console.log("OK, now uploading medical JSON data...");
+    
+                // const authMessage = await kavach.getAuthMessage(smartAccountAddress!);
+                const authMessage = await kavach.getAuthMessage(privyClient?.account?.address!);
+                console.log("Auth message: ", authMessage);
+                console.log("Got auth message, signing it...");
+                
+                // smartAccountSigner.signMessage
+                const signedMessage = await privyClient?.signMessage({
+                    account: privyClient.account?.address!,
+                    message: authMessage.message!,
+                });
+                /*
+                const signedMessage = await smartAccountClient?.signMessage({
+                    account: smartAccountAddress!,
+                    message: authMessage.message!,
+                });
+                */
+                console.log("Signed message: ", signedMessage);
+                console.log("now getting message JWT...");
+
+                // const { JWT, error} = await kavach.getJWT(smartAccountAddress!, signedMessage!);
+                const { JWT, error} = await kavach.getJWT(privyClient?.account?.address!, signedMessage!);
+                console.log(JWT, error);
+
+                console.log("Signed auth message and got JWT, now recovering public key...");
+
+                console.log("Recovered public key, now uploading text data...");
+                const response = await lighthouse.textUploadEncrypted(medicalJSON, 
+                                                                      process.env.NEXT_PUBLIC_LIGHTHOUSE_API_KEY!,
+                                                                      privyClient?.account?.address!,
+                                                                      JWT);
+                
+                console.log(response);
+
+                console.log("Uploaded! Now minting patient NFT...");
+
+                toast.update(toastID, {
+                    render: (
+                        <a href={`https://gateway.lighthouse.storage/ipfs/${response.data.hash}`}>
+                            Uploaded at this link - Now minting patient NFT...
+                        </a>
+                    ),
+                    type: "info",
+                    isLoading: true,
+                });
+
+                const publicClient = createPublicClient({
+                    chain: baseSepolia,
+                    transport: http("https://rpc.ankr.com/eth_sepolia"),
+                })
+
+                const txnHash = await postMedicalData(smartAccountClient!, smartAccountAddress!, root, nullHash, proof, response.data.hash);
+                console.log(txnHash);
+
+                if (txnHash === undefined) {
+                    throw new Error("Transaction error: check logs.");
+                }
 
                 toast.update(toastID, {
                     render: "Waiting for your transaction to be confirmed.",
@@ -95,23 +173,22 @@ export default function SignupForm({verified, authenticated, root, nullHash, pro
 
                 toast.update(toastID, {
                     render: (
-                      <a href={`https://sepolia.basecan.org/tx/${txnHash}`}>
+                      <a href={`https://sepolia.basescan.org/tx/${txnHash}`}>
                         Successfully minted! Click here to see your transaction.
                       </a>
                     ),
                     type: "success",
                     isLoading: false,
-                    autoClose: 5000,
                   });
 
+                
 
             } catch (error) {
                 console.log(error);
                 toast.update(toastID, {
                     render: (
                       <a>
-                        There was an error sending your transaction. See the developer
-                        console for more info.
+                        There was an error sending your transaction, logged in developer console.
                       </a>
                     ),
                     type: "error",
